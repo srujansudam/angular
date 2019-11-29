@@ -1,6 +1,7 @@
 package com.cg.ibs.rm.dao;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -137,6 +138,7 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 		// approval/disapproval
 		// logger.info("entering into checkedCreditCardDetails method of
 		// BankRepresentativeDAOImpl class");
+		BankerHistory history = new BankerHistory();
 		boolean check = false;
 		CreditCard cardCheck = manager.find(CreditCard.class, cardNumber);
 		if (null == cardCheck) {
@@ -145,6 +147,11 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 			throw new IBSExceptions(ExceptionMessages.CARD_ALREADY_ADDED);
 		} else if (cardCheck.getCardStatus().equals(CardStatus.PENDING)) {
 			cardCheck.setCardStatus(CardStatus.ACTIVE);
+			history.setBankerId(cardCheck.getBankId());
+			history.setTimeStamp(LocalDateTime.now());
+			history.setCardNumber(cardNumber);
+			history.setDecision("Approved");
+			manager.merge(history);
 			manager.merge(cardCheck);
 			check = true;
 		}
@@ -156,6 +163,7 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 																							// approval/disapproval
 		// logger.info("entering into decliningCreditCardDetails method of
 		// BankRepresentativeDAOImpl class");
+		BankerHistory history = new BankerHistory();
 		boolean check = false;
 		CreditCard cardCheck = manager.find(CreditCard.class, cardNumber);
 		if (null == cardCheck) {
@@ -164,6 +172,11 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 			throw new IBSExceptions(ExceptionMessages.CARD_ALREADY_ADDED);
 		} else if (cardCheck.getCardStatus().equals(CardStatus.PENDING)) {
 			cardCheck.setCardStatus(CardStatus.BLOCKED);
+			history.setBankerId(cardCheck.getBankId());
+			history.setTimeStamp(LocalDateTime.now());
+			history.setCardNumber(cardNumber);
+			history.setDecision("DisApproved");
+			manager.merge(history);
 			manager.merge(cardCheck);
 			check = true;
 		}
@@ -172,7 +185,7 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 
 	@Override
 	public boolean checkedBeneficiaryDetails(BigInteger accountNumber) throws IBSExceptions {// bank admin gives his
-																								// approval/disapproval
+		BankerHistory history = new BankerHistory(); // approval/disapproval
 		// logger.info("entering into checkedBeneficiaryDetails method of
 		// BankRepresentativeDAOImpl class");
 		boolean result = false;
@@ -183,6 +196,11 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 			throw new IBSExceptions(ExceptionMessages.BENEFICIARY_ALREDY_ADDED);
 		} else if (beneficiaryCheck.getStatus().equals(CardStatus.PENDING)) {
 			beneficiaryCheck.setStatus(CardStatus.ACTIVE);
+			history.setBankerId(beneficiaryCheck.getBankId());
+			history.setTimeStamp(LocalDateTime.now());
+			history.setCardNumber(accountNumber);
+			history.setDecision("Approved");
+			manager.merge(history);
 			manager.merge(beneficiaryCheck);
 			result = true;
 		}
@@ -194,6 +212,7 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 																								// approval/disapproval
 		// logger.info("entering into decliningBeneficiaryDetails method of
 		// BankRepresentativeDAOImpl class");
+		BankerHistory history = new BankerHistory();
 		boolean result = false;
 		Beneficiary beneficiaryCheck = manager.find(Beneficiary.class, accountNumber);
 		if (null == beneficiaryCheck) {
@@ -202,6 +221,11 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 			throw new IBSExceptions(ExceptionMessages.BENEFICIARY_ALREDY_ADDED);
 		} else if (beneficiaryCheck.getStatus().equals(CardStatus.PENDING)) {
 			beneficiaryCheck.setStatus(CardStatus.BLOCKED);
+			history.setBankerId(beneficiaryCheck.getBankId());
+			history.setTimeStamp(LocalDateTime.now());
+			history.setCardNumber(accountNumber);
+			history.setDecision("Approved");
+			manager.merge(history);
 			manager.merge(beneficiaryCheck);
 			result = true;
 		}
@@ -221,19 +245,31 @@ public class BankAdminDAOImpl implements BankAdminDAO {
 
 		return banker;
 	}
-	
-//	@Override
-//	public Set<BankerHistory> getHistory(Integer bankerId)
-//	{
-//		CriteriaBuilder builder = manager.getCriteriaBuilder();
-//		CriteriaQuery<CreditCard> query = builder.createQuery(CreditCard.class);
-//		Root<Customer> custRoot = query.from(Customer.class);
-//		Join<Customer, CreditCard> allCreditCards = custRoot.join("creditCards");
-//		query.select(allCreditCards)
-//				.where(builder.and(builder.or(builder.equal(allCreditCards.get("cardStatus"), CardStatus.BLOCKED), (builder.equal(allCreditCards.get("cardStatus"), CardStatus.ACTIVE))),
-//						(builder.equal(allCreditCards.get("bankerId"), bankerId))));
-//	}
 
-	
-	
+	@Override
+	public Set<BankerHistory> getBenHistory(Integer bankerId) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<BankerHistory> query = builder.createQuery(BankerHistory.class);
+		Root<BankerHistory> historyRoot = query.from(BankerHistory.class);
+		CriteriaQuery<BankerHistory> all = query.select(historyRoot)
+				.where(builder.and(builder.equal(historyRoot.get("bankerId"), bankerId),
+						builder.equal(historyRoot.get("cardNumber"), null)));
+		TypedQuery<BankerHistory> allQuery = manager.createQuery(all);
+		return new HashSet<>(allQuery.getResultList());
+
+	}
+
+	@Override
+	public Set<BankerHistory> getCreditHistory(Integer bankerId) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<BankerHistory> query = builder.createQuery(BankerHistory.class);
+		Root<BankerHistory> historyRoot = query.from(BankerHistory.class);
+		CriteriaQuery<BankerHistory> all = query.select(historyRoot)
+				.where(builder.and(builder.equal(historyRoot.get("bankerId"), bankerId),
+						builder.equal(historyRoot.get("accountNumber"), null)));
+		TypedQuery<BankerHistory> allQuery = manager.createQuery(all);
+		return new HashSet<>(allQuery.getResultList());
+
+	}
+
 }

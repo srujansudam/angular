@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cg.ibs.rm.dao.BankAdminDAO;
 import com.cg.ibs.rm.exception.IBSExceptions;
 import com.cg.ibs.rm.model.Banker;
+import com.cg.ibs.rm.model.BankerHistory;
 import com.cg.ibs.rm.model.Beneficiary;
 import com.cg.ibs.rm.model.CreditCard;
 
@@ -37,7 +38,7 @@ public class Bank_AdminServiceImpl implements Bank_AdminService {
 	}
 
 	@Override
-	public Set<CreditCard> showAllUnapprovedCreditCards(Integer bankerId) {
+	public Set<CreditCard> showAllUnapprovedCreditCards() {
 		// logger.info("entering into showUnapprovedCreditCards method of
 		// BankRepresentativeServiceImpl class");
 		return bankRepresentativeDAO.getAllCreditCardDetails();
@@ -52,7 +53,7 @@ public class Bank_AdminServiceImpl implements Bank_AdminService {
 	}
 
 	@Override
-	public Set<Beneficiary> showAllUnapprovedBeneficiaries(Integer bankerId) {
+	public Set<Beneficiary> showAllUnapprovedBeneficiaries() {
 		// logger.info("entering into showUnapprovedBeneficiaries method of
 		// BankRepresentativeServiceImpl class");
 		return bankRepresentativeDAO.getAllBeneficiaryDetails();
@@ -110,5 +111,15 @@ public class Bank_AdminServiceImpl implements Bank_AdminService {
 	@Override
 	public Banker getBankerDetails(String userId) throws IBSExceptions {
 		return bankRepresentativeDAO.getAdminDetails(userId);
+	}
+
+	@Override
+	public Set<BankerHistory> getBenHistory(Integer bankerId) {
+		return bankRepresentativeDAO.getBenHistory(bankerId);
+	}
+
+	@Override
+	public Set<BankerHistory> getCreditHistory(Integer bankerId) {
+		return bankRepresentativeDAO.getCreditHistory(bankerId);
 	}
 }

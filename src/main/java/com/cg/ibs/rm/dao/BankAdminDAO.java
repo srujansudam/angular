@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.cg.ibs.rm.exception.IBSExceptions;
 import com.cg.ibs.rm.model.Banker;
+import com.cg.ibs.rm.model.BankerHistory;
 import com.cg.ibs.rm.model.Beneficiary;
 import com.cg.ibs.rm.model.CreditCard;
 
@@ -30,4 +31,8 @@ public interface BankAdminDAO {
 	public boolean decliningBeneficiaryDetails(BigInteger accountNumber) throws IBSExceptions;
 
 	public Banker getAdminDetails(String userId) throws IBSExceptions;
+
+	public Set<BankerHistory> getBenHistory(Integer bankerId);
+	
+	public Set<BankerHistory> getCreditHistory(Integer bankerId);
 }

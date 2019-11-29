@@ -10,11 +10,11 @@ import javax.persistence.Table;
 public class Banker {
 	@Id
 	@Column(name="BANKER_ID")
-	Integer bankerId;
+	private Integer bankerId;
 	@Column(name="USER_ID")
-	String userId;
+	private String userId;
 	@Column(name="PASSWORD")
-	String password;
+	private String password;
 	
 	
 	public Banker() {
